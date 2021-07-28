@@ -120,6 +120,9 @@ if __name__ == '__main__':
     for desc in type_db.types.values():
         pkg = desc.qualified_package
         if is_v3_package(pkg):
+            # fixfix
+            if desc.proto_path.startswith('contrib/'):
+                pkg = "contrib." + pkg
             v3_packages.add(pkg)
             continue
         if is_v2_package(pkg):

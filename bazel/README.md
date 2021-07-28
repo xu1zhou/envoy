@@ -667,7 +667,7 @@ The following optional features can be enabled on the Bazel build command-line:
 ## Enabling and disabling extensions
 
 Envoy uses a modular build which allows extensions to be removed if they are not needed or desired.
-Extensions that can be removed are contained in
+Extensions that can be removed are contained in fixfix
 [extensions_build_config.bzl](../source/extensions/extensions_build_config.bzl).
 
 The extensions disabled by default can be enabled by adding the following parameter to Bazel, for example to enable
@@ -687,12 +687,12 @@ You can also use the following procedure to customize the extensions for your bu
 
 * The Envoy build assumes that a Bazel repository named `@envoy_build_config` exists which
   contains the file `@envoy_build_config//:extensions_build_config.bzl`. In the default build,
-  a synthetic repository is created containing [extensions_build_config.bzl](../source/extensions/extensions_build_config.bzl).
+  a synthetic repository is created containing [extensions_build_config.bzl](../extensions_build_config.bzl).
 * Start by creating a new Bazel workspace somewhere in the filesystem that your build can access.
   This workspace should contain:
   * Empty WORKSPACE file.
   * Empty BUILD file.
-  * A copy of [extensions_build_config.bzl](../source/extensions/extensions_build_config.bzl).
+  * A copy of [extensions_build_config.bzl](../extensions_build_config.bzl).
   * Comment out any extensions that you don't want to build in your file copy.
 
 To have your local build use your overridden configuration repository there are two options:
@@ -724,9 +724,9 @@ local_repository(
 If you are building your own Envoy extensions or custom Envoy builds and encounter visibility
 problems with, you may need to adjust the default visibility rules to be public,
 as documented in
-[extensions_build_config.bzl](../source/extensions/extensions_build_config.bzl).
+[extensions_build_config.bzl](../extensions_build_config.bzl).
 See the instructions above about how to create your own custom version of
-[extensions_build_config.bzl](../source/extensions/extensions_build_config.bzl).
+[extensions_build_config.bzl](../extensions_build_config.bzl).
 
 # Release builds
 

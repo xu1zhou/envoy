@@ -117,10 +117,11 @@ EXTENSION_STATUS_VALUES = {
 r = runfiles.Create()
 
 EXTENSION_DB = utils.from_yaml(r.Rlocation("envoy/source/extensions/extensions_metadata.yaml"))
+CONTRIB_EXTENSION_DB = utils.from_yaml(r.Rlocation("envoy/contrib/extensions_metadata.yaml"))
 
-# create an index of extension categories from extension db
+# create an index of extension categories from extension db fixfix
 EXTENSION_CATEGORIES = {}
-for _k, _v in EXTENSION_DB.items():
+for _k, _v in {**EXTENSION_DB, **CONTRIB_EXTENSION_DB}.items():
     for _cat in _v['categories']:
         EXTENSION_CATEGORIES.setdefault(_cat, []).append(_k)
 
@@ -241,16 +242,19 @@ def format_extension(extension):
         RST formatted extension description.
     """
     try:
-        extension_metadata = EXTENSION_DB[extension]
+        extension_metadata = EXTENSION_DB.get(extension, None)
+        if extension_metadata is None:
+            extension_metadata = CONTRIB_EXTENSION_DB[extension]
         status = EXTENSION_STATUS_VALUES.get(extension_metadata.get('status'), '')
         security_posture = EXTENSION_SECURITY_POSTURES[extension_metadata['security_posture']]
         categories = extension_metadata["categories"]
     except KeyError as e:
         sys.stderr.write(
-            f"\n\nDid you forget to add '{extension}' to source/extensions/extensions_build_config.bzl "
-            "or source/extensions/extensions_metadata.yaml?\n\n")
+            f"\n\nDid you forget to add '{extension}' to extensions_build_config.bzl, "
+            "extensions_metadata.yaml?\n\n")  # fixfix
         exit(1)  # Raising the error buries the above message in tracebacks.
 
+    # fixfix indicate contrib
     return EXTENSION_TEMPLATE.render(
         extension=extension,
         status=status,
