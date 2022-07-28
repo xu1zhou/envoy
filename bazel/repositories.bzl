@@ -181,6 +181,7 @@ def envoy_dependencies(skip_targets = []):
     _com_github_gperftools_gperftools()
     _com_github_grpc_grpc()
     _com_github_unicode_org_icu()
+    _com_github_intel_dml()
     _com_github_intel_ipp_crypto_crypto_mb()
     _com_github_jbeder_yaml_cpp()
     _com_github_libevent_libevent()
@@ -208,6 +209,7 @@ def envoy_dependencies(skip_targets = []):
     _io_hyperscan()
     _io_opentracing_cpp()
     _net_colm_open_source_ragel()
+    _net_sourceforge_libuuid()
     _net_zlib()
     _intel_dlb()
     _com_github_zlib_ng_zlib_ng()
@@ -390,6 +392,18 @@ def _com_github_unicode_org_icu():
         build_file_content = BUILD_ALL_CONTENT,
     )
 
+def _com_github_intel_dml():
+    external_http_archive(
+        name = "com_github_intel_dml",
+        patches = ["@envoy//bazel/foreign_cc:dml.patch"],
+        patch_args = ["-p1"],
+        build_file_content = BUILD_ALL_CONTENT,
+    )
+    native.bind(
+        name = "dml",
+        actual = "@envoy//bazel/foreign_cc:dml",
+    )
+
 def _com_github_intel_ipp_crypto_crypto_mb():
     external_http_archive(
         name = "com_github_intel_ipp_crypto_crypto_mb",
@@ -423,6 +437,16 @@ def _net_colm_open_source_ragel():
     native.bind(
         name = "ragel",
         actual = "@envoy//bazel/foreign_cc:ragel",
+    )
+
+def _net_sourceforge_libuuid():
+    external_http_archive(
+        name = "net_sourceforge_libuuid",
+        build_file_content = BUILD_ALL_CONTENT,
+    )
+    native.bind(
+        name = "libuuid",
+        actual = "@envoy//bazel/foreign_cc:libuuid",
     )
 
 def _net_zlib():

@@ -25,6 +25,9 @@ envoy_cc_library(
     name = "buffer_lib",
     srcs = ["buffer_impl.cc"],
     hdrs = ["buffer_impl.h"],
+    external_deps = [
+        "dml",
+    ],
     deps = [
         "//envoy/buffer:buffer_interface",
         "//source/common/common:non_copyable",

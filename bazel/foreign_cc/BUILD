@@ -74,6 +74,34 @@ cc_library(
 )
 
 configure_make(
+    name = "libuuid",
+    configure_options = [
+        "--enable-shared=no",
+    ],
+    lib_source = "@net_sourceforge_libuuid//:all",
+    out_static_libs = ["libuuid.a"],
+    tags = ["skip_on_windows"],
+)
+
+envoy_cmake(
+    name = "dml",
+    cache_entries = {
+        "CMAKE_C_FLAGS": "-I$EXT_BUILD_DEPS/libuuid/include",
+        "CMAKE_CXX_FLAGS": "-Dlinux -I$EXT_BUILD_DEPS/libuuid/include",
+        "CMAKE_INSTALL_LIBDIR": "lib",
+    },
+    lib_source = "@com_github_intel_dml//:all",
+    out_static_libs = [
+        "libdml.a",
+        "libdmlhl.a",
+    ],
+    tags = ["skip_on_windows"],
+    deps = [
+        "libuuid",
+    ],
+)
+
+configure_make(
     name = "luajit",
     configure_command = "build.py",
     env = select({

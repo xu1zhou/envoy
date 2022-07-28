@@ -1,0 +1,54 @@
+diff --git a/.gitignore b/.gitignore
+index 9107777..07b494f 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -16,3 +16,4 @@ doc/html/*
+ # Exclude IDE projects
+ .idea/
+ .vscode/
++install/
+\ No newline at end of file
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e29c079..3e9f403 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -56,7 +56,7 @@ endif ()
+ 
+ if (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+     include(cmake/msvc.cmake)
+-elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
++elseif (CMAKE_C_COMPILER_ID STREQUAL "Clang")
+     include(cmake/gnu.cmake)
+ else ()
+     message(FATAL_ERROR "Unknown compiler ID: ${CMAKE_C_COMPILER_ID}")
+@@ -80,11 +80,11 @@ add_subdirectory(sources)
+ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+ set(BUILD_GMOCK OFF CACHE BOOL "Suppress gmock build" FORCE)
+ set(INSTALL_GTEST OFF CACHE BOOL "Suppress gtest installation" FORCE)
+-add_subdirectory(google-test)
++# add_subdirectory(google-test)
+ 
+ # Testing
+-add_subdirectory(tests)
+-add_subdirectory(examples)
++# add_subdirectory(tests)
++# add_subdirectory(examples)
+ 
+ # Install rules
+ install(EXPORT ${PROJECT_NAME}Targets
+diff --git a/cmake/gnu.cmake b/cmake/gnu.cmake
+index 1830eca..a85786c 100644
+--- a/cmake/gnu.cmake
++++ b/cmake/gnu.cmake
+@@ -6,9 +6,9 @@ list(APPEND DML_SECURITY_OPTIONS
+     -fPIC
+     -fstack-protector
+     --param=ssp-buffer-size=8
+-    -Wl,-z,relro,-z,now
+-    -Wl,-z,noexecstack
+     -fstack-clash-protection
++    -march=native
++    -I/usr/include/c++/
+     )
+ 
+ list(APPEND DML_SECURITY_DEFINITIONS
