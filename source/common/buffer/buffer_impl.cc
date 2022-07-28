@@ -8,6 +8,7 @@
 
 #include "absl/container/fixed_array.h"
 #include "event2/buffer.h"
+#include "dml/dml.h"
 
 namespace Envoy {
 namespace Buffer {
