@@ -43,7 +43,7 @@ CONTRIB_EXTENSIONS = {
     # Input matchers
     #
 
-    "envoy.matching.input_matchers.hyperscan":                  "//contrib/hyperscan/matching/input_matchers/source:config",
+    # "envoy.matching.input_matchers.hyperscan":                  "//contrib/hyperscan/matching/input_matchers/source:config",
 
     #
     # Connection Balance extensions

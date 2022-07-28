@@ -110,6 +110,14 @@ void OwnedImpl::copyOut(size_t start, uint64_t size, void* data) const {
       continue;
     }
     uint64_t copy_size = std::min(size, data_size - bytes_to_skip);
+    // if (copy_size > OwnedImpl::dsa_cut_point_) {
+      ENVOY_LOG_MISC(trace, "DSA memmove {} bytes", copy_size);
+      dml::execute<dml::hardware>(
+          dml::mem_move, dml::make_view(slice.data() + bytes_to_skip, copy_size),
+          dml::make_view(dest, copy_size));
+    //   if (result.status != dml::status_code::ok) {
+    //     ENVOY_LOG_MISC(warn, "Fail to DSA memmove, status {}",
+    //                    static_cast<uint32_t>(result.status));
     memcpy(dest, slice.data() + bytes_to_skip, copy_size); // NOLINT(safe-memcpy)
     size -= copy_size;
     dest += copy_size;

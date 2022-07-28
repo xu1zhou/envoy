@@ -40,3 +40,4 @@ pkg_config(
         "-ldml",
         "-ldmlhl",
     ],
+)
