@@ -43,6 +43,7 @@
 #include "source/common/common/thread.h"
 #include "source/common/config/metadata.h"
 #include "source/common/config/well_known_names.h"
+#include "source/common/http/filter_chain_helper.h"
 #include "source/common/http/http1/codec_stats.h"
 #include "source/common/http/http2/codec_stats.h"
 #include "source/common/http/http3/codec_stats.h"
@@ -605,7 +606,8 @@ class ClusterInfoImpl : public ClusterInfo,
 public:
   using HttpProtocolOptionsConfigImpl =
       Envoy::Extensions::Upstreams::Http::ProtocolOptionsConfigImpl;
-  ClusterInfoImpl(const envoy::config::cluster::v3::Cluster& config,
+  ClusterInfoImpl(Server::Configuration::ServerFactoryContext& server_context,
+                  const envoy::config::cluster::v3::Cluster& config,
                   const envoy::config::core::v3::BindConfig& bind_config, Runtime::Loader& runtime,
                   TransportSocketMatcherPtr&& socket_matcher, Stats::ScopeSharedPtr&& stats_scope,
                   bool added_via_api, Server::Configuration::TransportSocketFactoryContext&);
@@ -756,6 +758,16 @@ public:
   std::vector<Http::Protocol>
   upstreamHttpProtocol(absl::optional<Http::Protocol> downstream_protocol) const override;
 
+  // Http::FilterChainFactory
+  void createFilterChain(Http::FilterChainManager& manager) const override {
+    Http::FilterChainUtility::createFilterChainForFactories(manager, http_filter_factories_);
+  }
+  bool createUpgradeFilterChain(absl::string_view, const UpgradeMap*,
+                                Http::FilterChainManager&) const override {
+    // Upgrade filter chains not yet supported for upstream filters.
+    return false;
+  }
+
   Http::Http1::CodecStats& http1CodecStats() const override;
   Http::Http2::CodecStats& http2CodecStats() const override;
   Http::Http3::CodecStats& http3CodecStats() const override;
@@ -840,9 +852,11 @@ private:
   const absl::optional<envoy::config::cluster::v3::Cluster::CustomClusterType> cluster_type_;
   const std::unique_ptr<Server::Configuration::CommonFactoryContext> factory_context_;
   std::vector<Network::FilterFactoryCb> filter_factories_;
+  Http::FilterChainUtility::FilterFactoriesList http_filter_factories_;
   mutable Http::Http1::CodecStats::AtomicPtr http1_codec_stats_;
   mutable Http::Http2::CodecStats::AtomicPtr http2_codec_stats_;
   mutable Http::Http3::CodecStats::AtomicPtr http3_codec_stats_;
+  Server::Configuration::ServerFactoryContext& server_factory_context_;
 };
 
 /**
@@ -916,7 +930,8 @@ public:
   void initialize(std::function<void()> callback) override;
 
 protected:
-  ClusterImplBase(const envoy::config::cluster::v3::Cluster& cluster, Runtime::Loader& runtime,
+  ClusterImplBase(Server::Configuration::ServerFactoryContext& server_context,
+                  const envoy::config::cluster::v3::Cluster& cluster, Runtime::Loader& runtime,
                   Server::Configuration::TransportSocketFactoryContextImpl& factory_context,
                   Stats::ScopeSharedPtr&& stats_scope, bool added_via_api, TimeSource& time_source);
 
