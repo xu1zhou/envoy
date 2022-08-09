@@ -171,7 +171,7 @@ public:
    * @param size supplies the data size.
    */
   virtual void add(const void* data, uint64_t size) PURE;
-
+  virtual void DSAadd(const void* data, uint64_t size, dml::sequence<std::allocator<dml::byte_t>> &sequence) PURE;
   /**
    * Add externally owned data into the buffer. No copying is done. fragment is not owned. When
    * the fragment->data() is no longer needed, fragment->done() is called.
@@ -190,6 +190,7 @@ public:
    * @param data supplies the buffer to copy.
    */
   virtual void add(const Instance& data) PURE;
+  virtual void DSAadd(const Instance& data) PURE;
 
   /**
    * Prepend a string_view to the buffer.
@@ -257,6 +258,7 @@ public:
    * @return uint64_t the total length of the buffer (not necessarily contiguous in memory).
    */
   virtual uint64_t length() const PURE;
+  virtual size_t size() const PURE;
 
   /**
    * @return a pointer to the first byte of data that has been linearized out to size bytes.

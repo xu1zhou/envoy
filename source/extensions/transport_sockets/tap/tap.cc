@@ -39,6 +39,7 @@ Network::IoResult TapSocket::doRead(Buffer::Instance& buffer) {
 Network::IoResult TapSocket::doWrite(Buffer::Instance& buffer, bool end_stream) {
   // TODO(htuch): avoid copy.
   Buffer::OwnedImpl copy(buffer);
+  ENVOY_LOG_MISC( trace,"copy buffer for tap buffer length {}", buffer.length());
   Network::IoResult result = transport_socket_->doWrite(buffer, end_stream);
   if (tapper_ != nullptr && result.bytes_processed_ > 0) {
     tapper_->onWrite(copy, result.bytes_processed_, end_stream);

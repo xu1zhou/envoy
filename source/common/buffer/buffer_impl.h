@@ -36,7 +36,7 @@ class Slice {
 public:
   using Reservation = RawSlice;
   using StoragePtr = std::unique_ptr<uint8_t[]>;
-
+  int dsa_copy_count=0;
   struct SizedStorage {
     StoragePtr mem_{};
     size_t len_{};
@@ -238,6 +238,31 @@ public:
     reservable_ += reservation.len_;
     return true;
   }
+
+  uint64_t DSAappend(const void* data, uint64_t size,dml::sequence<std::allocator<dml::byte_t>> &sequence) {
+    uint64_t copy_size = std::min(size, reservableSize());
+    if (copy_size == 0) {
+      return 0;
+    }
+    uint8_t* dest = base_ + reservable_;
+    reservable_ += copy_size;
+    // NOLINTNEXTLINE(clang-analyzer-core.NullDereference)
+    uint64_t dsa_cut_point_(12000);//1200 is larger copy size in tap copy senario
+    if (copy_size > dsa_cut_point_) {
+      auto result = sequence.add(dml::mem_copy, dml::make_view(data, copy_size),
+                                                dml::make_view(dest, copy_size));
+      ENVOY_LOG_MISC(trace, "DSA memcpy, size {}",copy_size);
+      if (result != dml::status_code::ok) {
+        ENVOY_LOG_MISC(trace, "Fail to DSA memcpy, status {}",static_cast<uint32_t>(result));
+        memcpy(dest, data, copy_size); 
+      } 
+    }else {
+      ENVOY_LOG_MISC(trace, "memcpy, size {}",copy_size);
+      memcpy(dest, data, copy_size);
+      } // NOLINT(safe-memcpy)
+
+    return copy_size;
+    }
 
   /**
    * Copy as much of the supplied data as possible to the end of the slice.
@@ -643,6 +668,8 @@ private:
  */
 class OwnedImpl : public LibEventInstance {
 public:
+  static constexpr uint32_t dsa_cut_point_ = 16000;
+  int dsa_copy_count=0;
   OwnedImpl();
   OwnedImpl(absl::string_view data);
   OwnedImpl(const Instance& data);
@@ -653,6 +680,8 @@ public:
   void addDrainTracker(std::function<void()> drain_tracker) override;
   void bindAccount(BufferMemoryAccountSharedPtr account) override;
   void add(const void* data, uint64_t size) override;
+  void DSAadd(const void* data, uint64_t size, dml::sequence<std::allocator<dml::byte_t>> &sequence) override;
+  void DSAadd(const Instance& data) override;
   void addBufferFragment(BufferFragment& fragment) override;
   void add(absl::string_view data) override;
   void add(const Instance& data) override;
@@ -666,6 +695,7 @@ public:
   RawSlice frontSlice() const override;
   SliceDataPtr extractMutableFrontSlice() override;
   uint64_t length() const override;
+  uint64_t size() const override;
   void* linearize(uint32_t size) override;
   void move(Instance& rhs) override;
   void move(Instance& rhs, uint64_t length) override;
@@ -740,6 +770,7 @@ private:
   bool isSameBufferImpl(const Instance& rhs) const;
 
   void addImpl(const void* data, uint64_t size);
+  void DSAaddImpl(const void* data, uint64_t size,dml::sequence<std::allocator<dml::byte_t>> &sequence);
   void drainImpl(uint64_t size);
 
   /**
