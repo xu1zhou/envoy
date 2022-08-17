@@ -13,7 +13,8 @@ namespace Extensions {
 namespace TransportSockets {
 namespace Tap {
 
-class TapSocket : public TransportSockets::PassthroughSocket {
+class TapSocket : public TransportSockets::PassthroughSocket ,
+                  public Logger::Loggable<Logger::Id::connection> {
 public:
   TapSocket(SocketTapConfigSharedPtr config, Network::TransportSocketPtr&& transport_socket);
 

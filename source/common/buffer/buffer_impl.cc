@@ -67,6 +67,57 @@ void OwnedImpl::add(const Instance& data) {
   }
 }
 
+void OwnedImpl::DSAadd(const void* data, uint64_t size, dml::sequence<std::allocator<dml::byte_t>> &sequence) { DSAaddImpl(data, size, sequence); }
+
+void OwnedImpl::DSAadd(const Instance& data) {
+  ENVOY_LOG_MISC(trace, "data size: {}", data.size());
+  ASSERT(&data != this);
+  if (data.size()>10){
+    dml::sequence<std::allocator<dml::byte_t>> sequence = dml::sequence(data.size()-1, std::allocator<dml::byte_t>());
+    ENVOY_LOG_MISC(trace, "sequence length: {}", data.size()-1);
+    for (const RawSlice& slice : data.getRawSlices()) {
+      DSAadd(slice.mem_, slice.len_, sequence);
+    }
+    ENVOY_LOG_MISC(trace, "sequence length after add task: {}", sequence.length());
+    auto result = dml::execute<dml::hardware>(dml::batch, sequence);
+    ENVOY_LOG_MISC(trace, "dml batch sync copy status: {}",result.status);
+    if (result.status != dml::status_code::ok) {
+      ENVOY_LOG_MISC(trace, "dml batch sync copy fail: {}",result.status);
+      return;
+    }
+  } else {
+    ENVOY_LOG_MISC(trace, "data size too small: {}", data.size());
+    for (const RawSlice& slice : data.getRawSlices()) {
+      add(slice.mem_, slice.len_);
+    }
+  }
+  // ENVOY_LOG_MISC(trace, "slices_.dsa_copy_count: {}",slices_.dsa_copy_count);
+
+}
+
+void OwnedImpl::DSAaddImpl(const void* data, uint64_t size, dml::sequence<std::allocator<dml::byte_t>> &sequence) {
+  const char* src = static_cast<const char*>(data);
+  bool new_slice_needed = slices_.empty();
+  while (size != 0) {
+    if (new_slice_needed) {
+      ENVOY_LOG_MISC(trace, "craete new slice");
+      slices_.emplace_back(Slice(size, account_));
+      Slice::Reservation reservation = slices_.back().reserve(size);
+      uint64_t loop_access = 0;
+      while (loop_access < size){
+        memset(static_cast<uint8_t*>(reservation.mem_)+loop_access,0,1);//?
+        loop_access += 4096;
+      }       
+    }
+
+    uint64_t copy_size = slices_.back().DSAappend(src, size, sequence);
+    src += copy_size;
+    size -= copy_size;
+    length_ += copy_size;
+    new_slice_needed = true;
+  }
+}
+
 void OwnedImpl::prepend(absl::string_view data) {
   uint64_t size = data.size();
   bool new_slice_needed = slices_.empty();
@@ -257,6 +308,9 @@ SliceDataPtr OwnedImpl::extractMutableFrontSlice() {
     slice.callAndClearDrainTrackersAndCharges();
     return std::make_unique<SliceDataImpl>(std::move(slice));
   }
+}
+size_t OwnedImpl::size() const {
+  return slices_.size();
 }
 
 uint64_t OwnedImpl::length() const {
@@ -601,7 +655,10 @@ OwnedImpl::OwnedImpl() = default;
 
 OwnedImpl::OwnedImpl(absl::string_view data) : OwnedImpl() { add(data); }
 
-OwnedImpl::OwnedImpl(const Instance& data) : OwnedImpl() { add(data); }
+OwnedImpl::OwnedImpl(const Instance& data) : OwnedImpl() { 
+  ENVOY_LOG_MISC(trace, " DSA path");
+  DSAadd(data); 
+  }
 
 OwnedImpl::OwnedImpl(const void* data, uint64_t size) : OwnedImpl() { add(data, size); }
 
