@@ -13,6 +13,7 @@ envoy_cc_library(
     hdrs = ["buffer.h"],
     external_deps = [
         "abseil_inlined_vector",
+        "dml",
     ],
     deps = [
         "//envoy/api:os_sys_calls_interface",

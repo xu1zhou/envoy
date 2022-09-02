@@ -249,8 +249,11 @@ public:
     // NOLINTNEXTLINE(clang-analyzer-core.NullDereference)
     uint64_t dsa_cut_point_(12000);//1200 is larger copy size in tap copy senario
     if (copy_size > dsa_cut_point_) {
-      auto result = sequence.add(dml::mem_copy, dml::make_view(data, copy_size),
-                                                dml::make_view(dest, copy_size));
+      const char* src = static_cast<const char*>(data);
+      dml::const_data_view src_view = dml::make_view(src, copy_size);
+      dml::data_view dest_view = dml::make_view(dest, copy_size); 
+      auto result = sequence.add(dml::mem_copy,src_view,
+                                                dest_view);
       ENVOY_LOG_MISC(trace, "DSA memcpy, size {}",copy_size);
       if (result != dml::status_code::ok) {
         ENVOY_LOG_MISC(trace, "Fail to DSA memcpy, status {}",static_cast<uint32_t>(result));

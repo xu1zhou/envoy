@@ -80,9 +80,9 @@ void OwnedImpl::DSAadd(const Instance& data) {
     }
     ENVOY_LOG_MISC(trace, "sequence length after add task: {}", sequence.length());
     auto result = dml::execute<dml::hardware>(dml::batch, sequence);
-    ENVOY_LOG_MISC(trace, "dml batch sync copy status: {}",result.status);
+    // ENVOY_LOG_MISC(trace, "dml batch sync copy status: {}",result.status);
     if (result.status != dml::status_code::ok) {
-      ENVOY_LOG_MISC(trace, "dml batch sync copy fail: {}",result.status);
+      // ENVOY_LOG_MISC(trace, "dml batch sync copy fail: {}",result.status);
       return;
     }
   } else {

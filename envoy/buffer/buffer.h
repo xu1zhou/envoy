@@ -19,6 +19,7 @@
 #include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
 #include "absl/types/span.h"
+#include "dml/dml.hpp"
 
 namespace Envoy {
 namespace Buffer {
