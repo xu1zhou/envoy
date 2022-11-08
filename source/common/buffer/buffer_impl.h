@@ -253,6 +253,7 @@ public:
     uint8_t* dest = base_ + reservable_;
     reservable_ += copy_size;
     // NOLINTNEXTLINE(clang-analyzer-core.NullDereference)
+    ENVOY_LOG_MISC(trace, "memcpy, size {}",copy_size);
     memcpy(dest, data, copy_size); // NOLINT(safe-memcpy)
     return copy_size;
   }

@@ -389,7 +389,7 @@ void InstanceImpl::initialize(Network::Address::InstanceConstSharedPtr local_add
   ENVOY_LOG(info, "initializing epoch {} (base id={}, hot restart version={})",
             options_.restartEpoch(), restarter_.baseId(), restarter_.version());
 
-  ENVOY_LOG(info, "statically linked extensions:");
+  ENVOY_LOG(info, "statically linked extensions: add memcpy count");
   for (const auto& ext : Envoy::Registry::FactoryCategoryRegistry::registeredFactories()) {
     ENVOY_LOG(info, "  {}: {}", ext.first, absl::StrJoin(ext.second->registeredNames(), ", "));
   }

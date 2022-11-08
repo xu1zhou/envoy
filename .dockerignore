@@ -4,6 +4,7 @@
 !/configs/google-vrp
 !/configs/*yaml
 !/linux/amd64/build_*release*
+!/linux/amd64/build_*fastbuild*
 !/linux/arm64/build_*release*
 !/local
 !/test/config/integration/certs
