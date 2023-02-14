@@ -4,7 +4,7 @@ RUN apk --no-cache add make
 COPY . /app
 RUN make -C /app/grpc-service
 
-FROM alpine@sha256:7580ece7963bfa863801466c0a488f11c86f85d9988051a9f9c68cb27f6b7872
+FROM alpine@sha256:69665d02cb32192e52e07644d76bc6f25abeb5410edc1c7a81a10ba3f0efb90a
 
 COPY --from=builder /app/grpc-service/server /app/server
 CMD ["/app/server", "-users", "/etc/users.json"]
