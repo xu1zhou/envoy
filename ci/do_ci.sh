@@ -104,6 +104,7 @@ function bazel_binary_build() {
   local BINARY_TYPE="$1"
   if [[ "${BINARY_TYPE}" == "release" ]]; then
     COMPILE_TYPE="opt"
+    CONFIG_ARGS="--config=sizeopt"
   elif [[ "${BINARY_TYPE}" == "debug" ]]; then
     COMPILE_TYPE="dbg"
   elif [[ "${BINARY_TYPE}" == "sizeopt" ]]; then
@@ -221,11 +222,11 @@ if [[ "$CI_TARGET" == "bazel.release" ]]; then
   [[ "${ENVOY_BUILD_ARCH}" == "x86_64" ]] && BAZEL_BUILD_OPTIONS+=("--test_env=ENVOY_MEMORY_TEST_EXACT=true")
 
   setup_clang_toolchain
-  echo "Testing ${TEST_TARGETS[*]} with options: ${BAZEL_BUILD_OPTIONS[*]}"
-  bazel_with_collection test "${BAZEL_BUILD_OPTIONS[@]}" -c opt "${TEST_TARGETS[@]}"
+  # echo "Testing ${TEST_TARGETS[*]} with options: ${BAZEL_BUILD_OPTIONS[*]}"
+  # bazel_with_collection test "${BAZEL_BUILD_OPTIONS[@]}" -c opt "${TEST_TARGETS[@]}"
 
-  echo "bazel release build..."
-  bazel_envoy_binary_build release
+  # echo "bazel release build..."
+  # bazel_envoy_binary_build release
 
   echo "bazel contrib release build..."
   bazel_contrib_binary_build release

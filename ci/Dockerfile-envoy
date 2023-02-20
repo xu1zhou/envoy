@@ -7,7 +7,7 @@ FROM scratch AS binary
 
 ARG TARGETPLATFORM
 ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
-ARG ENVOY_BINARY=envoy
+ARG ENVOY_BINARY=envoy-contrib
 ARG ENVOY_BINARY_SUFFIX=_stripped
 # RUN  ls ${TARGETPLATFORM}/build_${ENVOY_BINARY}_release${ENVOY_BINARY_SUFFIX}/
 COPY linux/amd64/build_envoy_release_stripped/envoy* /usr/local/bin/

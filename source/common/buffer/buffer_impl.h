@@ -311,6 +311,7 @@ public:
       copy_size = std::min(size, data_);
       data_ -= copy_size;
     }
+    ENVOY_LOG_MISC(trace, "memcpy, size {}",copy_size);
     memcpy(base_ + data_, src + size - copy_size, copy_size); // NOLINT(safe-memcpy)
     return copy_size;
   }
